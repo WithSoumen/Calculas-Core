@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculus Core</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>📐 Calculus Core</h1>
+  <p class="subtitle">Derivatives · Integrals · Limits · Visualizations · Quiz</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('derivative', this)">Derivatives</button>
+    <button class="tab" onclick="switchTab('integral', this)">Integrals</button>
+    <button class="tab" onclick="switchTab('limits', this)">Limits & Continuity</button>
+    <button class="tab" onclick="switchTab('rules', this)">Rules & Formulas</button>
+    <button class="tab" onclick="switchTab('quiz', this); startQuiz()">Quick Quiz</button>
+  </div>
+
+  <!-- GRAPH VISUALIZER CONTAINER (Desmos Style) -->
+  <div class="card graph-container">
+    <h3>📈 Interactive Function Plotter & Sandbox</h3>
+    <div class="graph-layout">
+      <div class="graph-controls">
+        <div class="control-group">
+          <label for="graph-fn">Function Type:</label>
+          <select id="graph-fn" onchange="updateGraph()">
+            <option value="power">f(x) = c * x^n</option>
+            <option value="sin">f(x) = c * sin(x)</option>
+            <option value="exp">f(x) = c * e^x</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="graph-c">Coeff (c):</label>
+          <input type="number" id="graph-c" value="1" step="0.5" oninput="updateGraph()">
+        </div>
+        <div class="control-group">
+          <label for="graph-n">Power / Freq (n):</label>
+          <input type="number" id="graph-n" value="2" step="1" oninput="updateGraph()">
+        </div>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="show-deriv" onchange="updateGraph()"> Plot Derivative f'(x)</label>
+          <label><input type="checkbox" id="show-tangent" onchange="updateGraph()"> Show Tangent Line</label>
+        </div>
+        <div class="control-group" id="tangent-x-wrap" style="display:none;">
+          <label for="tangent-x">At x =</label>
+          <input type="range" id="tangent-x" min="-4" max="4" step="0.1" value="1" oninput="updateGraph()">
+          <span id="tangent-x-val">1.0</span>
+        </div>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="graphCanvas" width="460" height="320"></canvas>
+        <div id="graph-tooltip"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DERIVATIVES PANEL -->
+  <div id="panel-derivative" class="panel active">
+    <div class="card">
+      <h3>Differentiate a power function</h3>
+      <div class="formula-row">
+        <label>f(x) =</label>
+        <input type="text" id="d-coeff" placeholder="coefficient" value="3" style="width:100px">
+        <span class="math-txt">x^</span>
+        <input type="text" id="d-exp" placeholder="exponent" value="4" style="width:100px">
+        <button class="btn" onclick="calcDerivative()">Differentiate</button>
+      </div>
+      <div class="result-box" id="d-result">
+        <span class="label">Result</span>
+        f′(x) = 12x³
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Tangent Line Equation Calculator</h3>
+      <p style="font-size:12px; color:#7F77DD; margin-bottom: 10px;">Finds point-slope formula $y - y_1 = m(x - x_1)$ mapping onto structural curves.</p>
+      <div class="formula-row">
+        <label>At Point x₀ =</label>
+        <input type="text" id="tan-x0" value="2" style="width:80px">
+        <button class="btn" onclick="calcTangentLine()">Compute Tangent</button>
+      </div>
+      <div class="result-box" id="tan-result">
+        <span class="label">Tangent Line Equation</span>
+        Click compute to evaluate based on variables above.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Step-by-step (Power Rule)</h3>
+      <div id="d-steps">
+        <div class="step"><span class="step-num">1</span>Identify: f(x) = 3x⁴ <span class="badge">coeff=3, exp=4</span></div>
+        <div class="step"><span class="step-num">2</span>Multiply exponent × coefficient → 4 × 3 = 12</div>
+        <div class="step"><span class="step-num">3</span>Decrease exponent by 1 → 4 − 1 = 3</div>
+        <div class="step"><span class="step-num">4</span>Result: f′(x) = 12x³ ✓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTEGRALS PANEL -->
+  <div id="panel-integral" class="panel">
+    <div class="card">
+      <h3>Indefinite integral (power function)</h3>
+      <div class="formula-row">
+        <label>∫</label>
+        <input type="text" id="i-coeff" placeholder="coeff" value="6" style="width:90px">
+        <span class="math-txt">x^</span>
+        <input type="text" id="i-exp" placeholder="exponent" value="2" style="width:90px">
+        <span class="math-txt">dx</span>
+        <button class="btn" onclick="calcIntegral()">Integrate</button>
+      </div>
+      <div class="result-box" id="i-result">
+        <span class="label">Result (indefinite)</span>
+        ∫ 6x² dx = 2x³ + C
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3>Definite integral [a, b] &amp; Riemann Approximator</h3>
+      <div class="formula-row">
+        <label>From a =</label>
+        <input type="text" id="def-a" value="0" style="width:70px">
+        <label style="min-width:40px">To b =</label>
+        <input type="text" id="def-b" value="3" style="width:70px">
+      </div>
+      <div class="formula-row" style="margin-top: 10px;">
+        <label>Intervals (n):</label>
+        <select id="riemann-n" style="width:80px">
+          <option value="4">4 rectangles</option>
+          <option value="10" selected>10 rectangles</option>
+          <option value="50">50 rectangles</option>
+          <option value="100">100 rectangles</option>
+        </select>
+        <label style="min-width:50px">Method:</label>
+        <select id="riemann-method" style="width:100px">
+          <option value="left">Left Riemann</option>
+          <option value="right">Right Riemann</option>
+          <option value="midpoint">Midpoint Rule</option>
+        </select>
+        <button class="btn" onclick="calcDefinite()">Evaluate &amp; Approximate</button>
+      </div>
+      <div class="result-box" id="def-result">
+        <span class="label">Definite result</span>
+        Enter configuration parameters above, then evaluate.
+      </div>
+    </div>
+  </div>
+
+  <!-- LIMITS PANEL -->
+  <div id="panel-limits" class="panel">
+    <div class="card">
+      <h3>Advanced Computational Limit Engine</h3>
+      <p style="font-size:12px; color:#7F77DD; margin-bottom: 12px;">Simulates values approaching the boundary target to check for indeterminate structures ($0/0$ or $\infty$).</p>
+      <div class="formula-row">
+        <label>Function:</label>
+        <select id="limit-expr-type">
+          <option value="sin_x">sin(x) / x</option>
+          <option value="indeterminate_hole">(x² - 4) / (x - 2)</option>
+          <option value="exp_growth">x / e^x</option>
+        </select>
+        <label style="min-width:40px">x →</label>
+        <input type="text" id="limit-target" value="0" style="width:60px">
+        <button class="btn" onclick="computeEngineLimit()">Evaluate Limit</button>
+      </div>
+      <div class="result-box" id="engine-limit-result">
+        <span class="label">Engine Computation Status</span>
+        Select setup and execute.
+      </div>
+    </div>
+
+    <div class="limit-tabs-row">
+      <button class="cat-btn active" onclick="setLimitCat('all',this)">All</button>
+      <button class="cat-btn" onclick="setLimitCat('basic',this)">Basic</button>
+      <button class="cat-btn" onclick="setLimitCat('trig',this)">Trig</button>
+      <button class="cat-btn" onclick="setLimitCat('exp',this)">Exp & Log</button>
+      <button class="cat-btn" onclick="setLimitCat('inf',this)">Infinity</button>
+      <button class="cat-btn" onclick="setLimitCat('hopital',this)">L'Hôpital</button>
+      <button class="cat-btn" onclick="setLimitCat('special',this)">Special</button>
+    </div>
+    <div id="limit-cards-container"></div>
+  </div>
+
+  <!-- RULES PANEL -->
+  <div id="panel-rules" class="panel">
+    <div class="limit-tabs-row">
+      <button class="cat-btn active" onclick="setRuleCat('all',this)">All</button>
+      <button class="cat-btn" onclick="setRuleCat('diff',this)">Differentiation</button>
+      <button class="cat-btn" onclick="setRuleCat('integ',this)">Integration</button>
+      <button class="cat-btn" onclick="setRuleCat('trig',this)">Trig</button>
+      <button class="cat-btn" onclick="setRuleCat('series',this)">Series</button>
+      <button class="cat-btn" onclick="setRuleCat('theorems',this)">Theorems</button>
+    </div>
+    <div id="rule-cards-container"></div>
+  </div>
+
+  <!-- QUIZ PANEL -->
+  <div id="panel-quiz" class="panel">
+    <div class="card">
+      <h3>Quick quiz</h3>
+      <div class="limit-tabs-row">
+        <button class="cat-btn active" onclick="setCategory('all',this)">All Topics</button>
+        <button class="cat-btn" onclick="setCategory('derivatives',this)">Derivatives</button>
+        <button class="cat-btn" onclick="setCategory('integrals',this)">Integrals</button>
+        <button class="cat-btn" onclick="setCategory('limits',this)">Limits</button>
+        <button class="cat-btn" onclick="setCategory('rules',this)">Rules</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:.75rem">
+        <span style="font-size:13px;color:#534AB7">Score: <strong id="score-num">0/0</strong></span>
+        <div class="score-bar" style="flex:1"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
+        <span id="quiz-category-label" style="font-size:11px;color:#7F77DD;font-weight:500;text-transform:uppercase;letter-spacing:.05em">All Topics</span>
+        <button onclick="startQuiz()" style="font-size:12px;padding:4px 10px;border-radius:20px;border:1px solid #AFA9EC;background:#fff;cursor:pointer;color:#534AB7">New Quiz ↺</button>
+      </div>
+      <div id="question-area"></div>
+    </div>
+  </div>
+
+  <!-- CONTACT SECTION -->
+  <div class="card contact-card">
+    <h3>✉️ Educational Help & Feedback Desk</h3>
+    <p>Have complex multi-variable equations, integration inquiries, or system optimization bugs? Drop your problem statement directly to our support engineering team:</p>
+    <div class="email-container">
+      <a href="mailto:eknumberberojgar@gmail.com" class="email-link">eknumberberojgar@gmail.com</a>
+    </div>
+  </div>
+</div>
+
+<!-- WATERMARK EXTRACTION ELEMENT -->
+<div id="watermark-soumen">@Soumen 🖇️</div>
+
+<script src="script.js"></script>
+</body>
+</html>
