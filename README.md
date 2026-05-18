@@ -2,6 +2,8 @@
 
 A high-performance, web-native graphing engine engineered for advanced mathematical functions and real-time numerical calculus visualization.
 
+## Live Demo: https://withsoumen.github.io/Calculas-Core/
+
 ## 🚀 Features
 
 * **Advanced Graphing:** Plots trig, inverse functions, e^x, logs, and custom user expressions.
